@@ -3,11 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Services\ProductService;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 
 class ProductController extends Controller
 {
+
+    protected $productService; 
+
+    public function __construct(ProductService $productservice){
+        $this->productService = $productService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -15,17 +23,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return Product::all();
     }
 
     /**
@@ -36,7 +34,8 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        //
+        $validatedData =  $request->validated();
+        $productService->createProduct($validatedData)? response()->json(['product' => $product], 201) : false;
     }
 
     /**
@@ -47,18 +46,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Product $product)
-    {
-        //
+        return $product ? $product : false;
     }
 
     /**
@@ -70,7 +58,8 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        //
+        $validatedData = $request->validated();
+        $product = $this->productService->updateProduct($product, $validatedData) ? response()->json(['product' => $product], 200) : false;
     }
 
     /**
@@ -81,6 +70,6 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        return $this->productService->deleteProduct($product) ?  response()->json(null, 204) : false;
     }
 }
